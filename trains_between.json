@@ -1,0 +1,91 @@
+[
+  {
+    "train_number": "05059",
+    "train_name": "KOAA LKU SPL",
+    "train_type": "exp",
+    "source": "KOAA",
+    "departure_time": "05:00",
+    "destination": "HJP",
+    "arrival_time": "19:30",
+    "duration": "14:30H",
+    "running_days": "0000001",
+    "booking_available": true,
+    "advance_reservation_period": "60",
+    "start_date": "17 May 2025",
+    "end_date": "28 Jun 2025",
+    "available_classes": [
+      ""
+    ],
+    "booking_classes": [
+      "1A",
+      "2A",
+      "3E",
+      "SL"
+    ],
+    "notices": [],
+    "has_pantry": false,
+    "is_limited_run": true,
+    "departure_datetime": "2025-06-29 05:00"
+  },
+  {
+    "train_number": "04091",
+    "train_name": "HWH NDLS SPL",
+    "train_type": "sf",
+    "source": "HWH",
+    "departure_time": "23:50",
+    "destination": "PNBE",
+    "arrival_time": "08:15",
+    "duration": "08:25H",
+    "running_days": "1000100",
+    "booking_available": true,
+    "advance_reservation_period": "60",
+    "start_date": "12 Jun 2025",
+    "end_date": "20 Jul 2025",
+    "available_classes": [
+      "",
+      ""
+    ],
+    "booking_classes": [
+      "1A",
+      "2A",
+      "3A",
+      "3E",
+      "SL"
+    ],
+    "notices": [],
+    "has_pantry": false,
+    "is_limited_run": true,
+    "departure_datetime": "2025-06-28 23:50"
+  },
+  {
+    "train_number": "12331",
+    "train_name": "HIMGIRI EXPRESS",
+    "train_type": "sf",
+    "source": "HWH",
+    "departure_time": "23:55",
+    "destination": "PNC",
+    "arrival_time": "09:25",
+    "duration": "09:30H",
+    "running_days": "0010011",
+    "booking_available": true,
+    "advance_reservation_period": "60",
+    "start_date": "",
+    "end_date": "",
+    "available_classes": [
+      "",
+      "",
+      ""
+    ],
+    "booking_classes": [
+      "1A",
+      "2A",
+      "3A",
+      "3E",
+      "SL"
+    ],
+    "notices": [],
+    "has_pantry": true,
+    "is_limited_run": false,
+    "departure_datetime": "2025-06-28 23:55"
+  }
+]

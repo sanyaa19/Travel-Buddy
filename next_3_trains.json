@@ -1,0 +1,80 @@
+[
+  {
+    "train_number": "12303",
+    "train_name": "POORVA EXPRESS",
+    "train_type": "sf",
+    "source": "HWH",
+    "departure_time": "08:00",
+    "destination": "PNBE",
+    "arrival_time": "15:45",
+    "duration": "07:45H",
+    "booking_available": true,
+    "advance_reservation_period": "60",
+    "start_date": "",
+    "end_date": "",
+    "booking_classes": [
+      "1A",
+      "2A",
+      "3A",
+      "SL"
+    ],
+    "notices": [
+      "Notice: Distance Restriction :480 KM in Unreserved Class. Booking not available in any class for all stations between Howrah and Durgapur."
+    ],
+    "has_pantry": true,
+    "is_limited_run": false,
+    "departure_datetime": "2025-06-29 08:00:00",
+    "departure_datetime_str": "2025-06-29 08:00"
+  },
+  {
+    "train_number": "12273",
+    "train_name": "NDLS DURONTO",
+    "train_type": "raj",
+    "source": "HWH",
+    "departure_time": "08:45",
+    "destination": "PNBE",
+    "arrival_time": "16:00",
+    "duration": "07:15H",
+    "booking_available": true,
+    "advance_reservation_period": "60",
+    "start_date": "",
+    "end_date": "",
+    "booking_classes": [
+      "1A",
+      "2A",
+      "3A",
+      "3E",
+      "SL",
+      "2S"
+    ],
+    "notices": [],
+    "has_pantry": true,
+    "is_limited_run": false,
+    "departure_datetime": "2025-06-29 08:45:00",
+    "departure_datetime_str": "2025-06-29 08:45"
+  },
+  {
+    "train_number": "13137",
+    "train_name": "KOAA AMH EXPRESS",
+    "train_type": "exp",
+    "source": "KOAA",
+    "departure_time": "11:25",
+    "destination": "HJP",
+    "arrival_time": "00:15",
+    "duration": "12:50H",
+    "booking_available": true,
+    "advance_reservation_period": "60",
+    "start_date": "",
+    "end_date": "",
+    "booking_classes": [
+      "2A",
+      "3A",
+      "SL"
+    ],
+    "notices": [],
+    "has_pantry": false,
+    "is_limited_run": false,
+    "departure_datetime": "2025-06-29 11:25:00",
+    "departure_datetime_str": "2025-06-29 11:25"
+  }
+]
