@@ -12,15 +12,13 @@ from contextlib import asynccontextmanager
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Replace with your actual import path
+# Import your scraping function
 from emergency_scraper import scrape_trains_between
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     logger.info("Starting Train Info API...")
     yield
-    # Shutdown
     logger.info("Shutting down Train Info API...")
 
 app = FastAPI(
@@ -30,13 +28,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS - restrict origins in production
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # React dev server
-        "http://localhost:8080",  # Vue dev server
-        "https://yourdomain.com"  # Production domain
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "https://yourdomain.com"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST"],
@@ -44,31 +42,30 @@ app.add_middleware(
 )
 
 class TrainInfo(BaseModel):
-    train_number: str = Field(..., description="Train number")
-    train_name: str = Field(..., description="Train name")
-    train_type: str = Field(..., description="Type of train")
-    departure_time: str = Field(..., description="Departure time")
-    arrival_time: str = Field(..., description="Arrival time")
-    duration: str = Field(..., description="Journey duration")
-    source: str = Field(..., description="Source station")
-    destination: str = Field(..., description="Destination station")
-    booking_classes: List[str] = Field(default=[], description="Available booking classes")
+    train_number: str
+    train_name: str
+    train_type: str
+    departure_time: str
+    arrival_time: str
+    duration: str
+    source: str
+    destination: str
+    booking_classes: List[str] = []
 
 class TrainResponse(BaseModel):
-    success: bool = Field(..., description="Request success status")
-    data: List[TrainInfo] = Field(..., description="List of trains")
-    total_count: int = Field(..., description="Total number of trains")
-    timestamp: str = Field(..., description="Response timestamp")
-    message: Optional[str] = Field(None, description="Additional message")
+    success: bool
+    data: List[TrainInfo]
+    total_count: int
+    timestamp: str
+    message: Optional[str] = None
 
 class ErrorResponse(BaseModel):
-    success: bool = Field(False, description="Request success status")
-    error: str = Field(..., description="Error message")
-    timestamp: str = Field(..., description="Error timestamp")
+    success: bool = False
+    error: str
+    timestamp: str
 
 @app.get("/", response_model=dict)
 async def root():
-    """Health check endpoint"""
     return {
         "message": "Train Info API is running",
         "version": "1.0.0",
@@ -79,87 +76,61 @@ async def root():
          response_model=TrainResponse,
          responses={
              200: {"description": "Successfully retrieved train data"},
-             400: {"model": ErrorResponse, "description": "Bad request"},
-             500: {"model": ErrorResponse, "description": "Internal server error"}
+             400: {"model": ErrorResponse},
+             500: {"model": ErrorResponse}
          })
 async def get_trains_json(
-    src_name: str = Query(..., example="Howrah Jn", description="Source station name"),
-    src_code: str = Query(..., example="HWH", description="Source station code"),
-    dst_name: str = Query(..., example="Chittaranjan", description="Destination station name"),
-    dst_code: str = Query(..., example="CRJ", description="Destination station code")
+    src_name: str = Query(..., example="Howrah Jn"),
+    src_code: str = Query(..., example="HWH"),
+    dst_name: str = Query(..., example="Chittaranjan"),
+    dst_code: str = Query(..., example="CRJ")
 ):
-    """
-    Get train information between two stations.
-    
-    Returns a list of trains with their details including departure/arrival times,
-    duration, and available booking classes.
-    """
     try:
-        # Input validation
         if not all([src_name.strip(), src_code.strip(), dst_name.strip(), dst_code.strip()]):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="All parameters are required and cannot be empty"
-            )
-        
-        # Log the request
+            raise HTTPException(status_code=400, detail="All parameters must be provided")
+
         logger.info(f"Fetching trains from {src_name} ({src_code}) to {dst_name} ({dst_code})")
-        
-        # Call the scraper
-        all_trains = scrape_trains_between(src_name, src_code, dst_name, dst_code)
-        
-        if not all_trains:
+
+        trains = scrape_trains_between(src_name, src_code, dst_name, dst_code)
+        if trains is None:
             return TrainResponse(
                 success=True,
                 data=[],
                 total_count=0,
                 timestamp=datetime.now().isoformat(),
-                message="No trains found between the specified stations"
+                message="No trains found or invalid station code."
             )
-        
-        # Transform data
-        result = [
-            TrainInfo(
-                train_number=t["train_number"],
-                train_name=t["train_name"],
-                train_type=t["train_type"],
-                departure_time=t["departure_time"],
-                arrival_time=t["arrival_time"],
-                duration=t["duration"],
-                source=t["source"],
-                destination=t["destination"],
-                booking_classes=t["booking_classes"] or []
-            )
-            for t in all_trains
+
+        train_list = [
+            TrainInfo(**t) for t in trains
         ]
-        
+
         return TrainResponse(
             success=True,
-            data=result,
-            total_count=len(result),
+            data=train_list,
+            total_count=len(train_list),
             timestamp=datetime.now().isoformat(),
-            message=f"Found {len(result)} trains"
+            message=f"Found {len(train_list)} trains"
         )
-        
-    except HTTPException:
-        # Re-raise HTTP exceptions
-        raise
-    except Exception as e:
-        # Log the error
-        logger.error(f"Error fetching trains: {str(e)}", exc_info=True)
-        
-        # Return error response
+
+    except ValueError as ve:
+        logger.warning(f"Validation error: {ve}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error: {str(e)}"
+            status_code=400,
+            detail=str(ve)
+        )
+    except Exception as e:
+        logger.error(f"Error fetching trains: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error: {e}"
         )
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    """Global exception handler"""
-    logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
     return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        status_code=500,
         content={
             "success": False,
             "error": "Internal server error",
@@ -168,10 +139,4 @@ async def global_exception_handler(request, exc):
     )
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "emergency_api:app", 
-        host="0.0.0.0", 
-        port=8000, 
-        reload=True,
-        log_level="info"
-    ) 
+    uvicorn.run("emergency_api:app", host="0.0.0.0", port=8000, reload=True)

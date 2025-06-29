@@ -122,19 +122,19 @@ def get_trains_by_logic(trains, local_tz):
 def scrape_trains_between(src_name, src_code, dst_name, dst_code, output_json=None):
     local_tz = get_localzone()
     current_date = datetime.now(local_tz).strftime("%Y%m%d")
-    
+
     url = build_url(src_name, src_code, dst_name, dst_code, current_date)
     print(f"\nFetching trains from {src_name} ({src_code}) to {dst_name} ({dst_code})")
     print(f"Date: {current_date}")
     print(f"URL: {url}\n")
-    
+
     headers = {
         'User-Agent': 'Mozilla/5.0',
         'Accept': 'text/html',
         'Accept-Language': 'en-US,en;q=0.5',
         'Connection': 'keep-alive',
     }
-    
+
     try:
         response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
@@ -143,9 +143,17 @@ def scrape_trains_between(src_name, src_code, dst_name, dst_code, output_json=No
         return None
 
     soup = BeautifulSoup(response.text, "html.parser")
+
+    if soup.find('div', class_='warn'):
+        warn_text = soup.find('div', class_='warn').get_text(strip=True)
+        print(f"❗ Error: {warn_text}")
+        print("Please check the station codes you entered. They might be incorrect.")
+        return None
+
     train_rows = soup.find_all('tr', attrs={'data-train': True})
+
     if not train_rows:
-        print("⚠️ No train data found.")
+        print("⚠️ No train data found between the provided stations.")
         return None
 
     trains = [get_train_info(row) for row in train_rows if get_train_info(row)]
@@ -159,7 +167,6 @@ def scrape_trains_between(src_name, src_code, dst_name, dst_code, output_json=No
 
     print(f"\nSelected trains: {len(selected_trains)}")
 
-    # Display
     print(f"\n{'='*80}")
     if train_type == "mixed":
         print("FIRST 3 TRAINS (Mixed Local and Non-Local)")
